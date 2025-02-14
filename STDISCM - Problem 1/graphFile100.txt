@@ -1,0 +1,280 @@
+* 1gr
+* 2gr
+* 3gr
+* 4gr
+* 5gr
+* 6gr
+* 7gr
+* 8gr
+* 9gr
+* 10gr
+* 11gr
+* 12gr
+* 13gr
+* 14gr
+* 15gr
+* 16gr
+* 17gr
+* 18gr
+* 19gr
+* 20gr
+* 21gr
+* 22gr
+* 23gr
+* 24gr
+* 25gr
+* 26gr
+* 27gr
+* 28gr
+* 29gr
+* 30gr
+* 31gr
+* 32gr
+* 33gr
+* 34gr
+* 35gr
+* 36gr
+* 37gr
+* 38gr
+* 39gr
+* 40gr
+* 41gr
+* 42gr
+* 43gr
+* 44gr
+* 45gr
+* 46gr
+* 47gr
+* 48gr
+* 49gr
+* 50gr
+* 51gr
+* 52gr
+* 53gr
+* 54gr
+* 55gr
+* 56gr
+* 57gr
+* 58gr
+* 59gr
+* 60gr
+* 61gr
+* 62gr
+* 63gr
+* 64gr
+* 65gr
+* 66gr
+* 67gr
+* 68gr
+* 69gr
+* 70gr
+* 71gr
+* 72gr
+* 73gr
+* 74gr
+* 75gr
+* 76gr
+* 77gr
+* 78gr
+* 79gr
+* 80gr
+* 81gr
+* 82gr
+* 83gr
+* 84gr
+* 85gr
+* 86gr
+* 87gr
+* 88gr
+* 89gr
+* 90gr
+* 91gr
+* 92gr
+* 93gr
+* 94gr
+* 95gr
+* 96gr
+* 97gr
+* 98gr
+* 99gr
+* 100gr
+- 1gr 2gr
+- 2gr 3gr
+- 3gr 4gr
+- 4gr 5gr
+- 5gr 6gr
+- 6gr 7gr
+- 7gr 8gr
+- 8gr 9gr
+- 9gr 10gr
+- 11gr 12gr
+- 12gr 13gr
+- 13gr 14gr
+- 14gr 15gr
+- 15gr 16gr
+- 16gr 17gr
+- 17gr 18gr
+- 18gr 19gr
+- 19gr 20gr
+- 21gr 22gr
+- 22gr 23gr
+- 23gr 24gr
+- 24gr 25gr
+- 25gr 26gr
+- 26gr 27gr
+- 27gr 28gr
+- 28gr 29gr
+- 29gr 30gr
+- 31gr 32gr
+- 32gr 33gr
+- 33gr 34gr
+- 34gr 35gr
+- 35gr 36gr
+- 36gr 37gr
+- 37gr 38gr
+- 38gr 39gr
+- 39gr 40gr
+- 41gr 42gr
+- 42gr 43gr
+- 43gr 44gr
+- 44gr 45gr
+- 45gr 46gr
+- 46gr 47gr
+- 47gr 48gr
+- 48gr 49gr
+- 49gr 50gr
+- 51gr 52gr
+- 52gr 53gr
+- 53gr 54gr
+- 54gr 55gr
+- 55gr 56gr
+- 56gr 57gr
+- 57gr 58gr
+- 58gr 59gr
+- 59gr 60gr
+- 61gr 62gr
+- 62gr 63gr
+- 63gr 64gr
+- 64gr 65gr
+- 65gr 66gr
+- 66gr 67gr
+- 67gr 68gr
+- 68gr 69gr
+- 69gr 70gr
+- 71gr 72gr
+- 72gr 73gr
+- 73gr 74gr
+- 74gr 75gr
+- 75gr 76gr
+- 76gr 77gr
+- 77gr 78gr
+- 78gr 79gr
+- 79gr 80gr
+- 81gr 82gr
+- 82gr 83gr
+- 83gr 84gr
+- 84gr 85gr
+- 85gr 86gr
+- 86gr 87gr
+- 87gr 88gr
+- 88gr 89gr
+- 89gr 90gr
+- 91gr 92gr
+- 92gr 93gr
+- 93gr 94gr
+- 94gr 95gr
+- 95gr 96gr
+- 96gr 97gr
+- 97gr 98gr
+- 98gr 99gr
+- 99gr 100gr
+- 1gr 11gr
+- 2gr 12gr
+- 3gr 13gr
+- 4gr 14gr
+- 5gr 15gr
+- 6gr 16gr
+- 7gr 17gr
+- 8gr 18gr
+- 9gr 19gr
+- 10gr 20gr
+- 11gr 21gr
+- 12gr 22gr
+- 13gr 23gr
+- 14gr 24gr
+- 15gr 25gr
+- 16gr 26gr
+- 17gr 27gr
+- 18gr 28gr
+- 19gr 29gr
+- 20gr 30gr
+- 21gr 31gr
+- 22gr 32gr
+- 23gr 33gr
+- 24gr 34gr
+- 25gr 35gr
+- 26gr 36gr
+- 27gr 37gr
+- 28gr 38gr
+- 29gr 39gr
+- 30gr 40gr
+- 31gr 41gr
+- 32gr 42gr
+- 33gr 43gr
+- 34gr 44gr
+- 35gr 45gr
+- 36gr 46gr
+- 37gr 47gr
+- 38gr 48gr
+- 39gr 49gr
+- 40gr 50gr
+- 41gr 51gr
+- 42gr 52gr
+- 43gr 53gr
+- 44gr 54gr
+- 45gr 55gr
+- 46gr 56gr
+- 47gr 57gr
+- 48gr 58gr
+- 49gr 59gr
+- 50gr 60gr
+- 51gr 61gr
+- 52gr 62gr
+- 53gr 63gr
+- 54gr 64gr
+- 55gr 65gr
+- 56gr 66gr
+- 57gr 67gr
+- 58gr 68gr
+- 59gr 69gr
+- 60gr 70gr
+- 61gr 71gr
+- 62gr 72gr
+- 63gr 73gr
+- 64gr 74gr
+- 65gr 75gr
+- 66gr 76gr
+- 67gr 77gr
+- 68gr 78gr
+- 69gr 79gr
+- 70gr 80gr
+- 71gr 81gr
+- 72gr 82gr
+- 73gr 83gr
+- 74gr 84gr
+- 75gr 85gr
+- 76gr 86gr
+- 77gr 87gr
+- 78gr 88gr
+- 79gr 89gr
+- 80gr 90gr
+- 81gr 91gr
+- 82gr 92gr
+- 83gr 93gr
+- 84gr 94gr
+- 85gr 95gr
+- 86gr 96gr
+- 87gr 97gr
+- 88gr 98gr
+- 89gr 99gr
+- 90gr 100gr

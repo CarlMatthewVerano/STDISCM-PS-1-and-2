@@ -33,22 +33,36 @@ static void edgesFormatter(const std::string& edgeToFormat, bool isLast) {
 //
 //}
 
-void printNodes(std::map<std::string, std::vector<std::string>> adjList) {
+void printNodes(std::unordered_map<std::string, std::vector<std::string>> adjList) {
 	for (const auto& pair : adjList) {
 		std::cout << pair.first << " ";
 	}
 	std::cout << std::endl;
 }
 
-void printEdges(std::map<std::string, std::vector<std::string>> adjList) {
-	for (const auto& pair : adjList) {
-		for (const auto& vertex : pair.second) {
-			edgesFormatter(pair.first + " " + vertex, pair.first == adjList.rbegin()->first && vertex == pair.second.back());
+//void printEdges(std::map<std::string, std::vector<std::string>> adjList) {
+//	for (const auto& pair : adjList) {
+//		for (const auto& vertex : pair.second) {
+//			edgesFormatter(pair.first + " " + vertex, pair.first == adjList.rbegin()->first && vertex == pair.second.back());
+//		}
+//	}
+//}
+
+void printEdges(std::unordered_map<std::string, std::vector<std::string>> adjList) {
+	auto mapIt = adjList.begin();
+	while (mapIt != adjList.end()) {
+		const auto& pair = *mapIt;
+		auto vecIt = pair.second.begin();
+		while (vecIt != pair.second.end()) {
+			bool isLast = (std::next(mapIt) == adjList.end()) && (std::next(vecIt) == pair.second.end());
+			edgesFormatter(pair.first + " " + *vecIt, isLast);
+			++vecIt;
 		}
+		++mapIt;
 	}
 }
 
-void checkNodeExistInGraph(std::map<std::string, std::vector<std::string>> adjList, const std::string& query) {
+void checkNodeExistInGraph(std::unordered_map<std::string, std::vector<std::string>> adjList, const std::string& query) {
 	std::string nodeQuery = query.substr(5);
 
 	bool nodeExists = false;
@@ -66,46 +80,40 @@ void checkNodeExistInGraph(std::map<std::string, std::vector<std::string>> adjLi
 	}
 }
 
-void nodeSearcher(const std::map<std::string, std::vector<std::string>>& part, const std::string& nodeQuery, bool& nodeExists/*, const std::string& runner*/) {
-	for (const auto& pair : part) {
-		if (pair.first == nodeQuery) {
+void nodeSearcher(const std::unordered_map<std::string, std::vector<std::string>>& adjList, const std::string& nodeQuery, std::atomic<bool>& nodeExists, size_t start, size_t end) {
+	auto it = adjList.begin();
+	std::advance(it, start);
+	for (size_t i = start; i < end && !nodeExists; ++i, ++it) {
+		if (it->first == nodeQuery) {
 			nodeExists = true;
-			return; // Exit the thread early if the node is found
+			return;
 		}
 	}
 }
 
-
-void checkNodeExistInGraphParallel(std::map<std::string, std::vector<std::string>> adjList, const std::string& query) {
+void checkNodeExistInGraphParallel(const std::unordered_map<std::string, std::vector<std::string>>& adjList, const std::string& query) {
 	std::string nodeQuery = query.substr(5);
 
-	bool nodeExists = false;
-
 	std::vector<std::thread> workerThreads;
-	int numThreads = 8;
+	int numThreads = std::thread::hardware_concurrency();
 
 	size_t totalSize = adjList.size();
 	size_t baseSize = totalSize / numThreads;
 	size_t remainder = totalSize % numThreads;
 
-	auto it = adjList.begin();
+	std::atomic<bool> nodeExists(false);
 
-	for (int i = 0; i < numThreads; i++) {
-		std::map<std::string, std::vector<std::string>> part;
-		size_t partSize = baseSize + (i < remainder ? 1 : 0);
-
-		for (size_t j = 0; j < partSize; j++) {
-			part.insert(*it);
-			it++;
-		}
-
-		//workerThreads.emplace_back(nodeSearcher, part, nodeQuery, std::ref(nodeExists), "T-" + std::to_string(i));
-		workerThreads.emplace_back(nodeSearcher, part, nodeQuery, std::ref(nodeExists));
+	size_t start = 0;
+	for (int i = 0; i < numThreads; ++i) {
+		size_t end = start + baseSize + (i < remainder ? 1 : 0);
+		workerThreads.emplace_back(nodeSearcher, std::cref(adjList), std::cref(nodeQuery), std::ref(nodeExists), start, end);
+		start = end;
 	}
 
 	for (auto& t : workerThreads) {
 		t.join();
 	}
+
 	if (nodeExists) {
 		std::cout << "Node " << nodeQuery << " is in the graph" << std::endl;
 	}
@@ -114,7 +122,7 @@ void checkNodeExistInGraphParallel(std::map<std::string, std::vector<std::string
 	}
 }
 
-void checkEdgeExistInGraph(std::map<std::string, std::vector<std::string>> adjList, const std::string& query) {
+void checkEdgeExistInGraph(std::unordered_map<std::string, std::vector<std::string>> adjList, const std::string& query) {
 	std::string edgeQuery = query.substr(5);
 	size_t spacePos = edgeQuery.find(' ');
 
@@ -140,7 +148,7 @@ void checkEdgeExistInGraph(std::map<std::string, std::vector<std::string>> adjLi
 	}
 }
 
-static bool dfsUtil(const std::string& src, const std::string& dest, std::unordered_set<std::string>& visited, std::vector<std::string>& path, std::map<std::string, std::vector<std::string>> adjList) {
+static bool dfsUtil(const std::string& src, const std::string& dest, std::unordered_set<std::string>& visited, std::vector<std::string>& path, std::unordered_map<std::string, std::vector<std::string>> adjList) {
 	visited.insert(src);
 	path.push_back(src);
 
@@ -160,12 +168,12 @@ static bool dfsUtil(const std::string& src, const std::string& dest, std::unorde
 	return false;
 }
 
-static bool findPathDFS(const std::string& src, const std::string& dest, std::vector<std::string>& path, std::map<std::string, std::vector<std::string>> adjList) {
+static bool findPathDFS(const std::string& src, const std::string& dest, std::vector<std::string>& path, std::unordered_map<std::string, std::vector<std::string>> adjList) {
 	std::unordered_set<std::string> visited;
 	return dfsUtil(src, dest, visited, path, adjList);
 }
 
-static void checkPathExistInGraph(std::map<std::string, std::vector<std::string>> adjList, const std::string& query) {
+static void checkPathExistInGraph(std::unordered_map<std::string, std::vector<std::string>> adjList, const std::string& query) {
 	std::string pathQuery = query.substr(5);
 	size_t spacePos = pathQuery.find(' ');
 
@@ -192,7 +200,7 @@ static void checkPathExistInGraph(std::map<std::string, std::vector<std::string>
 }
 
 
-static void queries(std::map<std::string, std::vector<std::string>> adjList) {
+static void queries(std::unordered_map<std::string, std::vector<std::string>> adjList) {
 	std::string query;
 	while (true)
 	{
@@ -220,9 +228,7 @@ static void queries(std::map<std::string, std::vector<std::string>> adjList) {
 			checkPathExistInGraph(adjList, query);
 		}
 		else if (query.find("node ") == 0) {
-			//demo02(adjList.size(), adjList, query);
 			std::cout << std::endl;
-			/*checkNodeExistInGraph(adjList, query);*/
 			checkNodeExistInGraphParallel(adjList, query);
 		}
 		else {
@@ -235,7 +241,7 @@ static void queries(std::map<std::string, std::vector<std::string>> adjList) {
 
 int main()
 {
-	GraphConfig graphConfig("graphFile2.txt");
+	GraphConfig graphConfig("graphFile5m.txt");
 	graphConfig.graphFileReader();
 	queries(graphConfig.adjList);
 }

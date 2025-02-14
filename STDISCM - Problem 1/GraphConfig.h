@@ -11,13 +11,13 @@
 class GraphConfig {
 public:
 	std::string trim(std::string& str);
-	std::map<std::string, std::vector<std::string>> adjList;
+	std::unordered_map<std::string, std::vector<std::string>> adjList;
 	std::string fileToExtractConfig;
 	GraphConfig(std::string fileToExtractConfig);
-	void graphContentExtractor(std::string graphContent);
+	void graphContentExtractor(const std::string& graphContent);
 
 	void graphFileReader();
-	void addEdge(std::string src, std::string dest);
+	void addEdge(const std::string& src, const std::string& dest);
 };
 
 #endif // GRAPHCONFIG_H

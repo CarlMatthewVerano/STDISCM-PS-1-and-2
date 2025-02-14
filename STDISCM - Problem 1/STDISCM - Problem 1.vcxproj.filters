@@ -16,6 +16,9 @@
     <Filter Include="Source Files\Graph">
       <UniqueIdentifier>{4f12d312-0030-44b4-be5b-aa323a3af7de}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ThreadPool">
+      <UniqueIdentifier>{20607c0e-d03b-4af1-87fc-89ef59b52a3b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -24,13 +27,23 @@
     <ClCompile Include="GraphConfig.cpp">
       <Filter>Source Files\Graph</Filter>
     </ClCompile>
+    <ClCompile Include="ThreadPool.cpp">
+      <Filter>Source Files\ThreadPool</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="graphFile.txt" />
+    <Text Include="graphFile100.txt" />
+    <Text Include="graphFile5m.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GraphConfig.h">
       <Filter>Source Files\Graph</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ThreadPool.h">
+      <Filter>Source Files\ThreadPool</Filter>
+    </None>
   </ItemGroup>
 </Project>
