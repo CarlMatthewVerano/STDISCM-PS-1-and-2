@@ -11,7 +11,7 @@
 class GraphConfig {
 public:
 	std::string trim(std::string& str);
-	std::unordered_map<std::string, std::vector<std::string>> adjList;
+	std::map<std::string, std::vector<std::string>> adjList;
 	std::string fileToExtractConfig;
 	GraphConfig(std::string fileToExtractConfig);
 	void graphContentExtractor(const std::string& graphContent);
