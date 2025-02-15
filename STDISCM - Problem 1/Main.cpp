@@ -39,13 +39,13 @@ void printNodes(std::map<std::string, std::vector<std::string>> adjList) {
 	std::cout << std::endl;
 }
 
-//void printEdges(std::unordered_map<std::string, std::vector<std::string>> adjList) {
-//	for (const auto& pair : adjList) {
-//		for (const auto& vertex : pair.second) {
-//			edgesFormatter(pair.first + " " + vertex, pair.first == adjList.rbegin()->first && vertex == pair.second.back());
-//		}
-//	}
-//}
+void printEdges(std::map<std::string, std::vector<std::string>> adjList) {
+	for (const auto& pair : adjList) {
+		for (const auto& vertex : pair.second) {
+			edgesFormatter(pair.first + " " + vertex, pair.first == adjList.rbegin()->first && vertex == pair.second.back());
+		}
+	}
+}
 
 void checkNodeExistInGraph(std::map<std::string, std::vector<std::string>> adjList, const std::string& query) {
 	std::string nodeQuery = query.substr(5);
@@ -357,7 +357,7 @@ static void queries(std::map<std::string, std::vector<std::string>> adjList) {
 			}
 		}
 		else if (query == "edges") {
-			//printEdges(adjList);
+			printEdges(adjList);
 		}
 		else if (query.find("edge ") == 0) {
 			if (parallel == true) {
@@ -401,7 +401,7 @@ static void queries(std::map<std::string, std::vector<std::string>> adjList) {
 
 int main()
 {
-	GraphConfig graphConfig("graphFile5m.txt");
+	GraphConfig graphConfig("graphFile.txt");
 	graphConfig.graphFileReader();
 	queries(graphConfig.adjList);
 }
