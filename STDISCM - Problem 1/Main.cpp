@@ -39,13 +39,13 @@ void printNodes(std::map<std::string, std::vector<std::string>> adjList) {
 	std::cout << std::endl;
 }
 
-void printEdges(std::map<std::string, std::vector<std::string>> adjList) {
-	for (const auto& pair : adjList) {
-		for (const auto& vertex : pair.second) {
-			edgesFormatter(pair.first + " " + vertex, pair.first == adjList.rbegin()->first && vertex == pair.second.back());
-		}
-	}
-}
+//void printEdges(std::unordered_map<std::string, std::vector<std::string>> adjList) {
+//	for (const auto& pair : adjList) {
+//		for (const auto& vertex : pair.second) {
+//			edgesFormatter(pair.first + " " + vertex, pair.first == adjList.rbegin()->first && vertex == pair.second.back());
+//		}
+//	}
+//}
 
 void checkNodeExistInGraph(std::map<std::string, std::vector<std::string>> adjList, const std::string& query) {
 	std::string nodeQuery = query.substr(5);
@@ -65,11 +65,11 @@ void checkNodeExistInGraph(std::map<std::string, std::vector<std::string>> adjLi
 	}
 }
 
-void nodeSearcher(const std::map<std::string, std::vector<std::string>>& adjList, const std::string& nodeQuery, std::atomic<bool>& nodeExists, size_t start, size_t end, std::string runner) {
+void nodeSearcher(const std::map<std::string, std::vector<std::string>>& adjList, const std::string& nodeQuery, std::atomic<bool>& nodeExists, size_t start, size_t end) {
 	auto it = adjList.begin();
 	std::advance(it, start);
-	for (size_t i = start; i < end && !nodeExists; i++, it++) {
-		std::cout << runner << " running from " << start + 1 << " to " << end << std::endl;
+	//std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+	for (size_t i = start; i < end && !nodeExists; ++i, ++it) {
 		if (it->first == nodeQuery) {
 			nodeExists = true;
 			return;
@@ -90,12 +90,9 @@ void checkNodeExistInGraphParallel(const std::map<std::string, std::vector<std::
 	std::atomic<bool> nodeExists(false);
 
 	size_t start = 0;
-	for (int i = 0; i < numThreads; i++) {
+	for (int i = 0; i < numThreads; ++i) {
 		size_t end = start + baseSize + (i < remainder ? 1 : 0);
-		workerThreads.emplace_back([&, start, end, i]() {
-			std::cout << "Thread " << i << " started" << std::endl;
-			nodeSearcher(adjList, nodeQuery, nodeExists, start, end, "T- " + std::to_string(i));
-			});
+		workerThreads.emplace_back(nodeSearcher, std::cref(adjList), nodeQuery, std::ref(nodeExists), start, end);
 		start = end;
 	}
 
@@ -140,6 +137,7 @@ void checkEdgeExistInGraph(std::map<std::string, std::vector<std::string>> adjLi
 void edgeSearcher(const std::map<std::string, std::vector<std::string>>& adjList, const std::string& src, const std::string& dest, std::atomic<bool>& edgeExists, size_t start, size_t end) {
 	auto it = adjList.begin();
 	std::advance(it, start);
+	//std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 	for (size_t i = start; i < end && !edgeExists; ++i, ++it) {
 		if (it->first == src) {
 			if (std::find(it->second.begin(), it->second.end(), dest) != it->second.end()) {
@@ -314,6 +312,16 @@ static void checkPathExistInGraphParallel(std::map<std::string, std::vector<std:
 static void queries(std::map<std::string, std::vector<std::string>> adjList) {
 	bool parallel = false;
 	std::string query;
+
+
+	std::cout << " _____ ______  ___  ______ _   _        _____ _   _ _____________   __" << std::endl;
+	std::cout << "|  __ \\| ___ \\/ _ \\ | ___ \\ | | |      |  _  | | | |  ___| ___ \\ \\ / /" << std::endl;
+	std::cout << "| |  \\/| |_/ / /_\\ \\| |_/ / |_| |      | | | | | | | |__ | |_/ /\\ V / " << std::endl;
+	std::cout << "| | __ |    /|  _  ||  __/|  _  |      | | | | | | |  __||    /  \\ /  " << std::endl;
+	std::cout << "| |_\\ \\| |\\ \\| | | || |   | | | |      \\ \\/' / |_| | |___| |\\ \\  | |  " << std::endl;
+	std::cout << " \\____/\\_| \\_\\_| |_/\\_|   \\_| |_/       \\_/\\_\\\\___/\\____/\\_| \\_| \\_/ " << std::endl;
+	std::cout << std::endl;
+
 	while (true)
 	{
 		std::cout << "Graph Query: ";
@@ -326,6 +334,7 @@ static void queries(std::map<std::string, std::vector<std::string>> adjList) {
 		}
 		else if (query == "parallel") {
 			parallel = !parallel;
+			std::cout << "Parallel mode is now " << (parallel ? "ON" : "OFF") << std::endl;
 		}
 		else if (query == "nodes") {
 			printNodes(adjList);
@@ -333,29 +342,53 @@ static void queries(std::map<std::string, std::vector<std::string>> adjList) {
 		else if (query.find("node ") == 0) {
 			std::cout << std::endl;
 			if (parallel == true) {
+				auto start = std::chrono::high_resolution_clock::now();
 				checkNodeExistInGraphParallel(adjList, query);
+				auto end = std::chrono::high_resolution_clock::now();
+				std::chrono::duration<double, std::milli> elapsed = end - start;
+				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
 			}
 			else {
+				auto start = std::chrono::high_resolution_clock::now();
 				checkNodeExistInGraph(adjList, query);
+				auto end = std::chrono::high_resolution_clock::now();
+				std::chrono::duration<double, std::milli> elapsed = end - start;
+				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
 			}
 		}
 		else if (query == "edges") {
-			printEdges(adjList);
+			//printEdges(adjList);
 		}
 		else if (query.find("edge ") == 0) {
 			if (parallel == true) {
+				auto start = std::chrono::high_resolution_clock::now();
 				checkEdgeExistInGraphParallel(adjList, query);
+				auto end = std::chrono::high_resolution_clock::now();
+				std::chrono::duration<double, std::milli> elapsed = end - start;
+				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
 			}
 			else {
+				auto start = std::chrono::high_resolution_clock::now();
 				checkEdgeExistInGraph(adjList, query);
+				auto end = std::chrono::high_resolution_clock::now();
+				std::chrono::duration<double, std::milli> elapsed = end - start;
+				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
 			}
 		}
 		else if (query.find("path ") == 0) {
 			if (parallel == true) {
+				auto start = std::chrono::high_resolution_clock::now();
 				checkPathExistInGraphParallel(adjList, query);
+				auto end = std::chrono::high_resolution_clock::now();
+				std::chrono::duration<double, std::milli> elapsed = end - start;
+				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
 			}
 			else {
+				auto start = std::chrono::high_resolution_clock::now();
 				checkPathExistInGraph(adjList, query);
+				auto end = std::chrono::high_resolution_clock::now();
+				std::chrono::duration<double, std::milli> elapsed = end - start;
+				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
 			}
 		}
 		else {
@@ -368,7 +401,7 @@ static void queries(std::map<std::string, std::vector<std::string>> adjList) {
 
 int main()
 {
-	GraphConfig graphConfig("graphFile100.txt");
+	GraphConfig graphConfig("graphFile5m.txt");
 	graphConfig.graphFileReader();
 	queries(graphConfig.adjList);
 }
