@@ -173,7 +173,6 @@ void checkEdgeExistInGraphParallel(const std::map<std::string, std::vector<std::
 	for (int i = 0; i < numThreads; ++i) {
 		size_t end = start + baseSize + (i < remainder ? 1 : 0);
 		workerThreads.emplace_back(edgeSearcher, std::cref(adjList), std::cref(src), std::cref(dest), std::ref(edgeExists), start, end);
-		std::cout << "Thread " << i << " running from " << start << " to " << end - 1 << std::endl;
 		start = end;
 	}
 
@@ -270,7 +269,6 @@ static void checkPathExistInGraphParallel(std::map<std::string, std::vector<std:
 	for (int i = 0; i < numThreads; ++i) {
 		size_t end = start + baseSize + (i < remainder ? 1 : 0);
 		workerThreads.emplace_back([&, start, end, i]() {
-			std::cout << "Thread " << i << " running from " << start << " to " << end - 1 << std::endl;
 			std::unordered_set<std::string> visited;
 			std::vector<std::string> localPath;
 			auto it = adjList.begin();
