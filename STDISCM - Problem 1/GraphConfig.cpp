@@ -21,19 +21,21 @@ void GraphConfig::graphContentExtractor(const std::string& graphContent) {
 	if (trimmedContent[0] == '*') {
 		// This is a node
 		std::string node = trimmedContent.substr(2);
-		adjList.emplace(node, std::vector<std::string>());
+		adjList.emplace(node, std::vector<std::pair<std::string, int>>());
 	}
 	else if (trimmedContent[0] == '-') {
 		// This is an edge
-		size_t spacePos = trimmedContent.find(' ', 2);
-		std::string src = trimmedContent.substr(2, spacePos - 2);
-		std::string dest = trimmedContent.substr(spacePos + 1);
-		addEdge(src, dest);
+		size_t firstSpacePos = trimmedContent.find(' ', 2);
+		size_t secondSpacePos = trimmedContent.find(' ', firstSpacePos + 1);
+		std::string src = trimmedContent.substr(2, firstSpacePos - 2);
+		std::string dest = trimmedContent.substr(firstSpacePos + 1, secondSpacePos - firstSpacePos - 1);
+		int weight = std::stoi(trimmedContent.substr(secondSpacePos + 1));
+		addEdge(src, dest, weight);
 	}
 }
 
-void GraphConfig::addEdge(const std::string& src, const std::string& dest) {
-	adjList[src].push_back(dest);
+void GraphConfig::addEdge(const std::string& src, const std::string& dest, int weight) {
+	adjList[src].emplace_back(dest, weight);
 }
 
 
@@ -49,4 +51,11 @@ void GraphConfig::graphFileReader() {
 	MyReadFile.close();
 
 	std::cout << "Graph File: graphFile has been loaded" << std::endl;
+
+	/*for (const auto& pair : adjList) {
+		std::cout << "Source: " << pair.first << std::endl;
+		for (const auto& dest : pair.second) {
+			std::cout << "     Destination: " << dest.first << "  --  Weight: " << dest.second << std::endl;
+		}
+	}*/
 }
