@@ -244,7 +244,7 @@ static void checkPathExistInGraph(std::map<std::string, std::vector<std::string>
 	}
 }
 
-static void checkPathExistInGraphParallel(std::map<std::string, std::vector<std::string>> adjList, const std::string& query) {
+void checkPathExistInGraphParallel(const std::map<std::string, std::vector<std::string>>& adjList, const std::string& query) {
 	std::string pathQuery = query.substr(5);
 	size_t spacePos = pathQuery.find(' ');
 
@@ -256,49 +256,40 @@ static void checkPathExistInGraphParallel(std::map<std::string, std::vector<std:
 	std::string src = pathQuery.substr(0, spacePos);
 	std::string dest = pathQuery.substr(spacePos + 1);
 
-	std::vector<std::thread> workerThreads;
-	int numThreads = 6;
-
-	size_t totalSize = adjList.size();
-	size_t baseSize = totalSize / numThreads;
-	size_t remainder = totalSize % numThreads;
+	if (adjList.find(src) == adjList.end()) {
+		std::cout << "No path found from " << src << " to " << dest << std::endl;
+		return;
+	}
 
 	std::atomic<bool> pathFound(false);
-	std::vector<std::string> path;
-	size_t start = 0;
-	for (int i = 0; i < numThreads; ++i) {
-		size_t end = start + baseSize + (i < remainder ? 1 : 0);
-		workerThreads.emplace_back([&, start, end, i]() {
-			std::unordered_set<std::string> visited;
+	std::mutex pathMutex;
+	std::vector<std::string> finalPath;
+	std::vector<std::thread> workerThreads;
+
+	for (const auto& neighbor : adjList.at(src)) {
+		workerThreads.emplace_back([&, neighbor = neighbor]() {
+			std::unordered_set<std::string> visited{ src };
 			std::vector<std::string> localPath;
-			auto it = adjList.begin();
-			std::advance(it, start);
-			for (size_t j = start; j < end && !pathFound; ++j, ++it) {
-				if (dfsUtil(it->first, dest, visited, localPath, adjList)) {
+
+			if (dfsUtil(neighbor, dest, visited, localPath, adjList)) {
+				std::lock_guard<std::mutex> lock(pathMutex);
+				if (!pathFound) {
+					finalPath.push_back(src);
+					finalPath.insert(finalPath.end(), localPath.begin(), localPath.end());
 					pathFound = true;
-					localPath.insert(localPath.begin(), src);
-					path = localPath;
-					return;
 				}
 			}
 			});
-		start = end;
 	}
 
-	for (auto& t : workerThreads) {
-		t.join();
+	for (auto& thread : workerThreads) {
+		thread.join();
 	}
 
 	if (pathFound) {
-		std::cout << "Path from " << src << " to " << dest << ": ";
-		for (const std::string& node : path) {
-			if (node != path.back()) {
-				std::cout << node << " -> ";
-			}
-			else {
-				std::cout << node;
-			}
-
+		for (size_t i = 0; i < finalPath.size(); ++i) {
+			std::cout << finalPath[i];
+			if (i < finalPath.size() - 1) std::cout << " -> ";
 		}
 		std::cout << std::endl;
 	}
@@ -306,6 +297,7 @@ static void checkPathExistInGraphParallel(std::map<std::string, std::vector<std:
 		std::cout << "No path found from " << src << " to " << dest << std::endl;
 	}
 }
+
 
 static void queries(std::map<std::string, std::vector<std::string>> adjList) {
 	bool parallel = false;
