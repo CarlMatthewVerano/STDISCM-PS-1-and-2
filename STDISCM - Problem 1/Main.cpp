@@ -236,6 +236,11 @@ static void checkPathExistInGraph(std::map<std::string, std::vector<std::pair<st
 	std::string src = pathQuery.substr(0, spacePos);
 	std::string dest = pathQuery.substr(spacePos + 1);
 
+	if (adjList.find(src) == adjList.end()) {
+		std::cout << "No path found from " << src << " to " << dest << std::endl;
+		return;
+	}
+
 	std::vector<std::string> path;
 
 	if (findPathDFS(src, dest, path, adjList)) {
@@ -299,6 +304,7 @@ void checkPathExistInGraphParallel(const std::map<std::string, std::vector<std::
 	}
 
 	if (pathFound) {
+		std::cout << "Path from " << src << " to " << dest << ": ";
 		for (size_t i = 0; i < finalPath.size(); ++i) {
 			std::cout << finalPath[i];
 			if (i < finalPath.size() - 1) std::cout << " -> ";
