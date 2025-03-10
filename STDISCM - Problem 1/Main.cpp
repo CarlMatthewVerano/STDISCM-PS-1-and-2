@@ -72,7 +72,7 @@ void dfsShortestPath(const std::string& current, const std::string& dest,
 	int& bestCost, std::vector<std::string>& bestPath, std::mutex& bestMutex)
 {
 	if (current == dest) {
-		/*std::lock_guard<std::mutex> lock(bestMutex);*/
+		std::lock_guard<std::mutex> lock(bestMutex);
 		if (currentCost < bestCost) {
 			bestCost = currentCost;
 			bestPath = currentPath;
