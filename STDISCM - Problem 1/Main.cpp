@@ -66,47 +66,39 @@ bool isPrime(int n) {
 }
 
 
-void dfsShortestPath(const std::string& current, const std::string& dest,
-	const std::map<std::string, std::vector<std::pair<std::string, int>>>& adjList,
-	std::vector<std::string>& currentPath, int currentCost,
-	int& bestCost, std::vector<std::string>& bestPath, std::mutex& bestMutex)
-{
-	if (current == dest) {
-		std::lock_guard<std::mutex> lock(bestMutex);
-		if (currentCost < bestCost) {
-			bestCost = currentCost;
-			bestPath = currentPath;
-		}
-		return;
-	}
-	for (const auto& edge : adjList.at(current)) {
-		const std::string& next = edge.first;
-		int weight = edge.second;
-		if (std::find(currentPath.begin(), currentPath.end(), next) != currentPath.end())
-			continue;
-		int newCost = currentCost + weight;
-
-		currentPath.push_back(next);
-		dfsShortestPath(next, dest, adjList, currentPath, newCost, bestCost, bestPath, bestMutex);
-		currentPath.pop_back();
-	}
-}
-
 void dfsShortestPrimePath(const std::string& current, const std::string& dest,
 	const std::map<std::string, std::vector<std::pair<std::string, int>>>& adjList,
 	std::vector<std::string>& currentPath, int currentCost,
-	int& bestCost, std::vector<std::string>& bestPath, std::mutex& bestMutex)
+	int& bestCost, std::vector<std::string>& bestPath, std::mutex& bestMutex, const std::string& option, const bool& isParallel)
 {
 	if (current == dest) {
-		if (isPrime(currentCost)) {
+		if (isParallel) {
 			std::lock_guard<std::mutex> lock(bestMutex);
+		}
+
+		if (option == "Shortest") {
 			if (currentCost < bestCost) {
 				bestCost = currentCost;
 				bestPath = currentPath;
 			}
 		}
+		else if (option == "Prime") {
+			if (isPrime(currentCost)) {
+				bestCost = currentCost;
+				bestPath = currentPath;
+			}
+		}
+		else if (option == "ShortestPrime") {
+			if (isPrime(currentCost)) {
+				if (currentCost < bestCost) {
+					bestCost = currentCost;
+					bestPath = currentPath;
+				}
+			}
+		}
 		return;
 	}
+
 	for (const auto& edge : adjList.at(current)) {
 		const std::string& next = edge.first;
 		int weight = edge.second;
@@ -114,15 +106,40 @@ void dfsShortestPrimePath(const std::string& current, const std::string& dest,
 			continue;
 		int newCost = currentCost + weight;
 		currentPath.push_back(next);
-		dfsShortestPrimePath(next, dest, adjList, currentPath, newCost, bestCost, bestPath, bestMutex);
+		dfsShortestPrimePath(next, dest, adjList, currentPath, newCost, bestCost, bestPath, bestMutex, option, isParallel);
 		currentPath.pop_back();
 	}
 }
 
 
-void checkShortestPathInGraph(const std::map<std::string, std::vector<std::pair<std::string, int>>>& adjList, const std::string& query) {
-	std::string pathQuery = query.substr(14);
+std::string queryExtract(const std::string& query, const std::string& option) {
+	if (option == "Shortest") {
+		return query.substr(14);
+	}
+	else if (option == "Prime") {
+		return query.substr(11);
+	}
+	else if (option == "ShortestPrime") {
+		return query.substr(20);
+	}
+}
+
+void printOption(const std::string& option) {
+	if (option == "Shortest") {
+		std::cout << "shortest path: ";
+	}
+	else if (option == "Prime") {
+		std::cout << "prime path: ";
+	}
+	else if (option == "ShortestPrime") {
+		std::cout << "shortest prime path: ";
+	}
+}
+
+void checkShortestPrimePathInGraph(const std::map<std::string, std::vector<std::pair<std::string, int>>>& adjList, const std::string& query, const std::string& option) {
+	std::string pathQuery = queryExtract(query, option);
 	size_t spacePos = pathQuery.find(' ');
+
 	if (spacePos == std::string::npos) {
 		std::cout << "INVALID SHORTEST PATH QUERY" << std::endl;
 		return;
@@ -134,15 +151,16 @@ void checkShortestPathInGraph(const std::map<std::string, std::vector<std::pair<
 		std::cout << "No path from " << src << " to " << dest << std::endl;
 		return;
 	}
+
 	int bestCost = INT_MAX;
 	std::vector<std::string> bestPath;
 	std::vector<std::string> currentPath = { src };
 	std::mutex bestMutex;
 
-	dfsShortestPath(src, dest, adjList, currentPath, 0, bestCost, bestPath, bestMutex);
+	dfsShortestPrimePath(src, dest, adjList, currentPath, 0, bestCost, bestPath, bestMutex, option, false);
 
 	if (!bestPath.empty()) {
-		std::cout << "shortest path: ";
+		printOption(option);
 		for (size_t i = 0; i < bestPath.size(); i++) {
 			std::cout << bestPath[i] << (i != bestPath.size() - 1 ? " -> " : "");
 		}
@@ -153,9 +171,10 @@ void checkShortestPathInGraph(const std::map<std::string, std::vector<std::pair<
 	}
 }
 
-void checkShortestPathInGraphParallel(const std::map<std::string, std::vector<std::pair<std::string, int>>>& adjList, const std::string& query) {
-	std::string pathQuery = query.substr(14);
+void checkShortestPrimePathInGraphParallel(const std::map<std::string, std::vector<std::pair<std::string, int>>>& adjList, const std::string& query, const std::string& option) {
+	std::string pathQuery = queryExtract(query, option);
 	size_t spacePos = pathQuery.find(' ');
+
 	if (spacePos == std::string::npos) {
 		std::cout << "INVALID SHORTEST PATH QUERY" << std::endl;
 		return;
@@ -167,6 +186,7 @@ void checkShortestPathInGraphParallel(const std::map<std::string, std::vector<st
 		std::cout << "No path from " << src << " to " << dest << std::endl;
 		return;
 	}
+
 	int bestCost = INT_MAX;
 	std::vector<std::string> bestPath;
 	std::mutex bestMutex;
@@ -181,13 +201,13 @@ void checkShortestPathInGraphParallel(const std::map<std::string, std::vector<st
 			std::vector<std::string> threadPath = currentPath;
 			threadPath.push_back(neighbor);
 			pool.enqueue([=, &adjList, &bestCost, &bestPath, &bestMutex]() mutable {
-				dfsShortestPath(neighbor, dest, adjList, threadPath, weight, bestCost, bestPath, bestMutex);
+				dfsShortestPrimePath(neighbor, dest, adjList, threadPath, weight, bestCost, bestPath, bestMutex, option, true);
 				});
 		}
 	}
 
 	if (!bestPath.empty()) {
-		std::cout << "shortest path: ";
+		printOption(option);
 		for (size_t i = 0; i < bestPath.size(); i++) {
 			std::cout << bestPath[i] << (i != bestPath.size() - 1 ? " -> " : "");
 		}
@@ -197,88 +217,6 @@ void checkShortestPathInGraphParallel(const std::map<std::string, std::vector<st
 		std::cout << "No path from " << src << " to " << dest << std::endl;
 	}
 }
-
-void checkShortestPrimePathInGraph(const std::map<std::string, std::vector<std::pair<std::string, int>>>& adjList, const std::string& query) {
-	std::string pathQuery = query.substr(20);
-	size_t spacePos = pathQuery.find(' ');
-	if (spacePos == std::string::npos) {
-		std::cout << "INVALID SHORTEST PRIME PATH QUERY" << std::endl;
-		return;
-	}
-	std::string src = pathQuery.substr(0, spacePos);
-	std::string dest = pathQuery.substr(spacePos + 1);
-
-	if (adjList.find(src) == adjList.end()) {
-		std::cout << "No prime path from " << src << " to " << dest << std::endl;
-		return;
-	}
-	int bestCost = INT_MAX;
-	std::vector<std::string> bestPath;
-	std::vector<std::string> currentPath = { src };
-	std::mutex bestMutex;
-
-	dfsShortestPrimePath(src, dest, adjList, currentPath, 0, bestCost, bestPath, bestMutex);
-
-	if (!bestPath.empty()) {
-		std::cout << "shortest prime path: ";
-		for (size_t i = 0; i < bestPath.size(); i++) {
-			std::cout << bestPath[i] << (i != bestPath.size() - 1 ? " -> " : "");
-		}
-		std::cout << " with weight/length= " << bestCost << std::endl;
-	}
-	else {
-		std::cout << "No prime path from " << src << " to " << dest << std::endl;
-	}
-}
-
-void checkShortestPrimePathInGraphParallel(
-	const std::map<std::string, std::vector<std::pair<std::string, int>>>& adjList,
-	const std::string& query)
-{
-	std::string pathQuery = query.substr(20);
-	size_t spacePos = pathQuery.find(' ');
-	if (spacePos == std::string::npos) {
-		std::cout << "INVALID SHORTEST PRIME PATH QUERY" << std::endl;
-		return;
-	}
-	std::string src = pathQuery.substr(0, spacePos);
-	std::string dest = pathQuery.substr(spacePos + 1);
-
-	if (adjList.find(src) == adjList.end()) {
-		std::cout << "No prime path from " << src << " to " << dest << std::endl;
-		return;
-	}
-	int bestCost = INT_MAX;
-	std::vector<std::string> bestPath;
-	std::mutex bestMutex;
-	std::vector<std::string> currentPath = { src };
-
-	const size_t numThreads = 6;
-	{
-		ThreadPool pool(numThreads);
-		for (const auto& edge : adjList.at(src)) {
-			std::string neighbor = edge.first;
-			int weight = edge.second;
-			std::vector<std::string> threadPath = currentPath;
-			threadPath.push_back(neighbor);
-			pool.enqueue([=, &adjList, &bestCost, &bestPath, &bestMutex]() mutable {
-				dfsShortestPrimePath(neighbor, dest, adjList, threadPath, weight, bestCost, bestPath, bestMutex);
-				});
-		}
-	}
-
-	if (!bestPath.empty()) {
-		std::cout << "shortest prime path: ";
-		for (size_t i = 0; i < bestPath.size(); i++) {
-			std::cout << bestPath[i] << (i != bestPath.size() - 1 ? " -> " : "");
-		}
-		std::cout << " with weight/length= " << bestCost << std::endl;
-	}
-	else {
-		std::cout << "No prime path from " << src << " to " << dest << std::endl;
-	}
-}
-
 
 static void edgesFormatter(const std::string& edgeToFormat, bool isLast) {
 	size_t firstSpacePos = edgeToFormat.find(' ');
@@ -455,17 +393,20 @@ void checkEdgeExistInGraphParallel(const std::map<std::string, std::vector<std::
 	}
 }
 
-static bool dfsUtil(const std::string& src, const std::string& dest, std::unordered_set<std::string>& visited, std::vector<std::string>& path, const std::map<std::string, std::vector<std::pair<std::string, int>>> adjList) {
+static bool dfsUtil(const std::string& src, const std::string& dest, std::unordered_set<std::string>& visited, std::vector<std::string>& path, const std::map<std::string, std::vector<std::pair<std::string, int>>> adjList, int currentCost, int& bestCost) {
 	visited.insert(src);
 	path.push_back(src);
 
 	if (src == dest) {
+		bestCost = currentCost;
 		return true;
 	}
 
 	for (const auto& neighbor : adjList.at(src)) {
+		int weight = neighbor.second;
 		if (visited.find(neighbor.first) == visited.end()) {
-			if (dfsUtil(neighbor.first, dest, visited, path, adjList)) {
+			int newCost = currentCost + weight;
+			if (dfsUtil(neighbor.first, dest, visited, path, adjList, newCost, bestCost)) {
 				return true;
 			}
 		}
@@ -475,9 +416,9 @@ static bool dfsUtil(const std::string& src, const std::string& dest, std::unorde
 	return false;
 }
 
-static bool findPathDFS(const std::string& src, const std::string& dest, std::vector<std::string>& path, std::map<std::string, std::vector<std::pair<std::string, int>>> adjList) {
+static bool findPathDFS(const std::string& src, const std::string& dest, std::vector<std::string>& path, std::map<std::string, std::vector<std::pair<std::string, int>>> adjList, int currentCost, int& bestCost) {
 	std::unordered_set<std::string> visited;
-	return dfsUtil(src, dest, visited, path, adjList);
+	return dfsUtil(src, dest, visited, path, adjList, currentCost, bestCost);
 }
 
 static void checkPathExistInGraph(std::map<std::string, std::vector<std::pair<std::string, int>>> adjList, const std::string& query) {
@@ -498,9 +439,10 @@ static void checkPathExistInGraph(std::map<std::string, std::vector<std::pair<st
 	}
 
 	std::vector<std::string> path;
+	int bestCost = INT_MAX;
 
-	if (findPathDFS(src, dest, path, adjList)) {
-		std::cout << "Path from " << src << " to " << dest << ": ";
+	if (findPathDFS(src, dest, path, adjList, 0, bestCost)) {
+		std::cout << "path: ";
 		for (const std::string& node : path) {
 			if (node != path.back()) {
 				std::cout << node << " -> ";
@@ -509,7 +451,7 @@ static void checkPathExistInGraph(std::map<std::string, std::vector<std::pair<st
 				std::cout << node;
 			}
 		}
-		std::cout << std::endl;
+		std::cout << " with weight/length= " << bestCost << std::endl;
 	}
 	else {
 		std::cout << "No path found from " << src << " to " << dest << std::endl;
@@ -537,18 +479,23 @@ void checkPathExistInGraphParallel(const std::map<std::string, std::vector<std::
 	std::mutex pathMutex;
 	std::vector<std::string> finalPath;
 	std::vector<std::thread> workerThreads;
+	std::atomic<int> bestCost(INT_MAX);
 
 	for (const auto& neighborPair : adjList.at(src)) {
 		const std::string& neighbor = neighborPair.first;
-		workerThreads.emplace_back([&, neighbor = neighbor]() {
+		int edgeCost = neighborPair.second;
+
+		workerThreads.emplace_back([&, neighbor = neighbor, edgeCost]() {
 			std::unordered_set<std::string> visited{ src };
 			std::vector<std::string> localPath;
+			int localCost = 0;
 
-			if (dfsUtil(neighbor, dest, visited, localPath, adjList)) {
+			if (dfsUtil(neighbor, dest, visited, localPath, adjList, edgeCost, localCost)) {
 				std::lock_guard<std::mutex> lock(pathMutex);
 				if (!pathFound) {
 					finalPath.push_back(src);
 					finalPath.insert(finalPath.end(), localPath.begin(), localPath.end());
+					bestCost = localCost;
 					pathFound = true;
 				}
 			}
@@ -560,12 +507,12 @@ void checkPathExistInGraphParallel(const std::map<std::string, std::vector<std::
 	}
 
 	if (pathFound) {
-		std::cout << "Path from " << src << " to " << dest << ": ";
+		std::cout << "path: ";
 		for (size_t i = 0; i < finalPath.size(); ++i) {
 			std::cout << finalPath[i];
 			if (i < finalPath.size() - 1) std::cout << " -> ";
 		}
-		std::cout << std::endl;
+		std::cout << " with weight/length= " << bestCost << std::endl;
 	}
 	else {
 		std::cout << "No path found from " << src << " to " << dest << std::endl;
@@ -654,17 +601,33 @@ static void queries(std::map<std::string, std::vector<std::pair<std::string, int
 				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
 			}
 		}
-		else if (query.find("shortest-path ") == 0) {
+		else if (query.find("prime-path ") == 0) {
 			if (parallel == true) {
 				auto start = std::chrono::high_resolution_clock::now();
-				checkShortestPathInGraphParallel(adjList, query);
+				checkShortestPrimePathInGraphParallel(adjList, query, "Prime");
 				auto end = std::chrono::high_resolution_clock::now();
 				std::chrono::duration<double, std::milli> elapsed = end - start;
 				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
 			}
 			else {
 				auto start = std::chrono::high_resolution_clock::now();
-				checkShortestPathInGraph(adjList, query);
+				checkShortestPrimePathInGraph(adjList, query, "Prime");
+				auto end = std::chrono::high_resolution_clock::now();
+				std::chrono::duration<double, std::milli> elapsed = end - start;
+				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
+			}
+		}
+		else if (query.find("shortest-path ") == 0) {
+			if (parallel == true) {
+				auto start = std::chrono::high_resolution_clock::now();
+				checkShortestPrimePathInGraphParallel(adjList, query, "Shortest");
+				auto end = std::chrono::high_resolution_clock::now();
+				std::chrono::duration<double, std::milli> elapsed = end - start;
+				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
+			}
+			else {
+				auto start = std::chrono::high_resolution_clock::now();
+				checkShortestPrimePathInGraph(adjList, query, "Shortest");
 				auto end = std::chrono::high_resolution_clock::now();
 				std::chrono::duration<double, std::milli> elapsed = end - start;
 				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
@@ -673,14 +636,14 @@ static void queries(std::map<std::string, std::vector<std::pair<std::string, int
 		else if (query.find("shortest-prime-path ") == 0) {
 			if (parallel == true) {
 				auto start = std::chrono::high_resolution_clock::now();
-				checkShortestPrimePathInGraphParallel(adjList, query);
+				checkShortestPrimePathInGraphParallel(adjList, query, "ShortestPrime");
 				auto end = std::chrono::high_resolution_clock::now();
 				std::chrono::duration<double, std::milli> elapsed = end - start;
 				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
 			}
 			else {
 				auto start = std::chrono::high_resolution_clock::now();
-				checkShortestPrimePathInGraph(adjList, query);
+				checkShortestPrimePathInGraph(adjList, query, "ShortestPrime");
 				auto end = std::chrono::high_resolution_clock::now();
 				std::chrono::duration<double, std::milli> elapsed = end - start;
 				std::cout << "Execution time: " << elapsed.count() << " ms" << std::endl;
