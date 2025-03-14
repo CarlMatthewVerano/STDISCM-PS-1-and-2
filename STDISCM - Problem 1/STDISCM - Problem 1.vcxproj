@@ -149,6 +149,10 @@
   <ItemGroup>
     <ClInclude Include="GraphConfig.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="graph-hammock-1.txt" />
+    <None Include="graph-hammock-2.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

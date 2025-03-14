@@ -50,7 +50,7 @@ void GraphConfig::graphFileReader() {
 
 	MyReadFile.close();
 
-	std::cout << "Graph File: graphFile has been loaded" << std::endl;
+	std::cout << "Graph File: " << fileToExtractConfig << " has been loaded" << std::endl;
 
 	/*for (const auto& pair : adjList) {
 		std::cout << "Source: " << pair.first << std::endl;

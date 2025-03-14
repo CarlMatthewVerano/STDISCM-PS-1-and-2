@@ -35,4 +35,8 @@
       <Filter>Source Files\Graph</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="graph-hammock-1.txt" />
+    <None Include="graph-hammock-2.txt" />
+  </ItemGroup>
 </Project>
